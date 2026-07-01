@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hisaab — Salary Ledger</title>
+  <meta name="description" content="Track your domestic workers' salary, attendance, and advances in one simple ledger.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Auth Screen -->
+  <div id="authScreen" class="auth-screen hidden">
+    <div class="logo">Hisaab</div>
+    <p class="tagline">Your household salary ledger</p>
+    <form class="auth-form" id="loginForm">
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" placeholder="••••••••" required>
+      </div>
+      <p id="authError" class="error-text hidden"></p>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+    </form>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="hidden">
+    <div class="app-shell">
+
+      <!-- ═══ HOME: Workers List ═══ -->
+      <div id="viewHome">
+        <div class="top-bar">
+          <div class="app-name">Hisaab</div>
+          <div class="top-bar-right">
+            <button class="btn-icon" id="logoutBtn" title="Sign out">⏻</button>
+          </div>
+        </div>
+        <div id="workersList"></div>
+        <button class="add-worker-btn" id="showAddWorkerBtn">+ Add Worker</button>
+
+        <!-- Add Worker Form (inline, hidden by default) -->
+        <div id="addWorkerForm" class="card hidden">
+          <h3 class="mb-md">New Worker</h3>
+          <form id="workerForm">
+            <div class="field">
+              <label for="wName">Name</label>
+              <input type="text" id="wName" placeholder="e.g. Sunita" required>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="wSalary">Monthly Salary (₹)</label>
+                <input type="number" id="wSalary" placeholder="e.g. 8000" min="1" required>
+              </div>
+              <div class="field">
+                <label for="wShifts">Shifts / Day</label>
+                <select id="wShifts" required>
+                  <option value="1">1 shift</option>
+                  <option value="2">2 shifts</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="wJoinDate">Join Date</label>
+              <input type="date" id="wJoinDate" required>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="wPhone">Phone</label>
+                <input type="tel" id="wPhone" placeholder="Optional">
+              </div>
+              <div class="field">
+                <label for="wPhone2">Alt. Phone</label>
+                <input type="tel" id="wPhone2" placeholder="Optional">
+              </div>
+            </div>
+            <p id="workerError" class="error-text hidden"></p>
+            <button type="submit" class="btn btn-primary" id="workerSubmitBtn">Save Worker</button>
+            <button type="button" class="btn btn-outline mt-sm" id="cancelAddWorker" style="width:100%;">Cancel</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══ WORKER DETAIL VIEW ═══ -->
+      <div id="viewWorker" class="hidden">
+        <div class="back-bar">
+          <button class="back-btn" id="backToHome">←</button>
+          <h2 id="workerDetailName"></h2>
+          <div class="top-bar-right">
+            <button class="btn-icon" id="logoutBtn2" title="Sign out">⏻</button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="worker-tabs">
+          <button class="wtab active" data-tab="dashboard">Dashboard</button>
+          <button class="wtab" data-tab="attendance">Attendance</button>
+          <button class="wtab" data-tab="transactions">Add Transaction</button>
+          <button class="wtab" data-tab="ledger">Ledger</button>
+        </div>
+
+        <!-- Tab: Dashboard -->
+        <div id="tabDashboard" class="tab-content">
+          <div class="dash-hero card">
+            <div class="salary-due-label">Net Salary Due</div>
+            <div class="salary-due" id="dSalaryDue">₹0</div>
+            <div class="salary-month" id="dSalaryMonth"></div>
+          </div>
+          <div class="dash-stats">
+            <div class="stat-card">
+              <div class="stat-value" id="dPresent">0</div>
+              <div class="stat-label">Days Present</div>
+            </div>
+            <div class="stat-card accent">
+              <div class="stat-value" id="dHalf">0</div>
+              <div class="stat-label">Half Days</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="dPaidLeave">0</div>
+              <div class="stat-label">Paid Leave</div>
+            </div>
+            <div class="stat-card alert">
+              <div class="stat-value" id="dUnpaidLeave">0</div>
+              <div class="stat-label">Unpaid Leave</div>
+            </div>
+          </div>
+          <div class="card" id="dInfoCard">
+            <div class="info-row">
+              <span class="info-label">Monthly Salary</span>
+              <span class="info-value" id="dMonthlySalary">₹0</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Running Advance Balance</span>
+              <span class="info-value alert" id="dAdvance">₹0</span>
+            </div>
+            <div class="info-row" id="dPhoneRow">
+              <span class="info-label">Phone</span>
+              <a href="#" id="dPhone"></a>
+            </div>
+            <div class="info-row hidden" id="dPhone2Row">
+              <span class="info-label">Alt. Phone</span>
+              <a href="#" id="dPhone2"></a>
+            </div>
+          </div>
+          <div class="dash-actions">
+            <button class="dash-action-btn" id="dMarkToday">
+              <span class="action-icon">✓</span>
+              Mark Today
+            </button>
+            <button class="dash-action-btn" id="dAddTxn">
+              <span class="action-icon">₹</span>
+              Add Transaction
+            </button>
+          </div>
+          <p class="text-center text-sm text-muted mt-sm" id="dTodayStatus"></p>
+        </div>
+
+        <!-- Tab: Attendance -->
+        <div id="tabAttendance" class="tab-content hidden">
+          <div class="cal-header">
+            <div class="cal-nav"><button id="calPrev">←</button></div>
+            <h2 id="calTitle"></h2>
+            <div class="cal-nav"><button id="calNext">→</button></div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <div class="legend-item"><div class="legend-dot present"></div> Present</div>
+            <div class="legend-item"><div class="legend-dot half_day"></div> Half Day</div>
+            <div class="legend-item"><div class="legend-dot leave_paid"></div> Paid Leave</div>
+            <div class="legend-item"><div class="legend-dot leave_unpaid"></div> Unpaid Leave</div>
+          </div>
+        </div>
+
+        <!-- Tab: Transactions -->
+        <div id="tabTransactions" class="tab-content hidden">
+          <form class="card" id="txnForm">
+            <div class="field-row">
+              <div class="field">
+                <label for="txnType">Type</label>
+                <select id="txnType" required>
+                  <option value="advance">Advance</option>
+                  <option value="bonus">Bonus</option>
+                  <option value="deduction">Deduction</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="txnAmount">Amount (₹)</label>
+                <input type="number" id="txnAmount" placeholder="0" min="1" required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="txnDate">Date</label>
+              <input type="date" id="txnDate" required>
+            </div>
+            <div class="field">
+              <label for="txnNote">Note (required)</label>
+              <textarea id="txnNote" placeholder="e.g. Diwali advance, salary adjustment…" required></textarea>
+            </div>
+            <p id="txnError" class="error-text hidden"></p>
+            <button type="submit" class="btn btn-primary" id="txnSubmitBtn">Save Transaction</button>
+          </form>
+          <div class="section-header mt-md"><h3>Recent Transactions</h3></div>
+          <div id="recentTxns">
+            <div class="empty-state"><div class="empty-icon">📋</div><p>No transactions yet</p></div>
+          </div>
+        </div>
+
+        <!-- Tab: Ledger -->
+        <div id="tabLedger" class="tab-content hidden">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="ledgerSearch" placeholder="Search notes or filter by month…">
+          </div>
+          <div class="filter-row" id="ledgerFilters">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip" data-filter="attendance">Attendance</button>
+            <button class="filter-chip" data-filter="transaction">Transactions</button>
+          </div>
+          <div id="ledgerList">
+            <div class="empty-state"><div class="empty-icon">📖</div><p>No records yet</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Status Picker Modal -->
+  <div id="statusModal" class="modal-overlay hidden">
+    <div class="modal-sheet">
+      <h3 id="modalTitle">Mark Attendance</h3>
+      <div class="status-options">
+        <button class="status-option" data-status="present">
+          <div class="status-dot present"></div> Present
+        </button>
+        <button class="status-option" data-status="half_day">
+          <div class="status-dot half_day"></div> Half Day
+        </button>
+        <button class="status-option" data-status="leave_paid">
+          <div class="status-dot leave_paid"></div> Paid Leave
+        </button>
+        <button class="status-option" data-status="leave_unpaid">
+          <div class="status-dot leave_unpaid"></div> Unpaid Leave
+        </button>
+      </div>
+      <button class="modal-cancel" id="modalCancel">Cancel</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="app.js?v=6"></script>
+</body>
+</html>
