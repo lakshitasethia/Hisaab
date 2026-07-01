@@ -22,6 +22,8 @@ let wTransactions  = [];     // all transactions for active worker
 
 let calYear  = new Date().getFullYear();
 let calMonth = new Date().getMonth();
+let dashYear  = new Date().getFullYear();
+let dashMonth = new Date().getMonth();
 
 // ─── DOM Helpers ─────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -125,6 +127,18 @@ function bindEvents() {
   // Dashboard quick actions
   $('dMarkToday').addEventListener('click', () => openStatusPicker(todayStr()));
   $('dAddTxn').addEventListener('click', () => switchWorkerTab('transactions'));
+
+  // Dashboard month nav
+  $('dashPrev').addEventListener('click', () => {
+    dashMonth--;
+    if (dashMonth < 0) { dashMonth = 11; dashYear--; }
+    refreshDashboard();
+  });
+  $('dashNext').addEventListener('click', () => {
+    dashMonth++;
+    if (dashMonth > 11) { dashMonth = 0; dashYear++; }
+    refreshDashboard();
+  });
 
   // Calendar nav
   $('calPrev').addEventListener('click', () => {
@@ -337,6 +351,8 @@ async function openWorker(w) {
 
   calYear  = new Date().getFullYear();
   calMonth = new Date().getMonth();
+  dashYear  = new Date().getFullYear();
+  dashMonth = new Date().getMonth();
 
   // Load all data for this worker
   await loadWorkerData();
@@ -390,9 +406,8 @@ async function loadWorkerTransactions() {
 function refreshDashboard() {
   if (!activeWorker) return;
   $('dMonthlySalary').textContent = '₹' + fmtNum(activeWorker.monthly_salary);
-  const now   = new Date();
-  const year  = now.getFullYear();
-  const month = now.getMonth();
+  const year  = dashYear;
+  const month = dashMonth;
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
 
   const monthAtt = wAllAttendance.filter(a => a.date.startsWith(monthStr));

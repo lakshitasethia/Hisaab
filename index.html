@@ -117,7 +117,11 @@
           <div class="dash-hero card">
             <div class="salary-due-label">Net Salary Due</div>
             <div class="salary-due" id="dSalaryDue">₹0</div>
-            <div class="salary-month" id="dSalaryMonth"></div>
+            <div class="cal-header" style="justify-content:center;margin-bottom:0;">
+              <div class="cal-nav"><button id="dashPrev">←</button></div>
+              <div class="salary-month" id="dSalaryMonth" style="margin:0 var(--space-sm);"></div>
+              <div class="cal-nav"><button id="dashNext">→</button></div>
+            </div>
           </div>
           <div class="dash-stats">
             <div class="stat-card">
@@ -261,6 +265,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

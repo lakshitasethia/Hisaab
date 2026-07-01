@@ -428,8 +428,8 @@ a:hover { text-decoration: underline; }
   gap: var(--space-xs);
 }
 .cal-nav button {
-  background: var(--card);
-  border: none;
+  background: var(--bg); /* Use base background to contrast with card background */
+  border: 1px solid #ccc5b0;
   border-radius: var(--radius-sm);
   width: 36px;
   height: 36px;
@@ -439,9 +439,9 @@ a:hover { text-decoration: underline; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
-.cal-nav button:hover { background: #ddd5be; }
+.cal-nav button:hover { background: #e5dec8; border-color: var(--primary); }
 
 .cal-grid {
   display: grid;
