@@ -7,6 +7,11 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ─── Register Service Worker ─────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
+}
+
 // ─── State ───────────────────────────────────
 let currentUser    = null;
 let workers        = [];
